@@ -55,8 +55,9 @@ python scripts/local_engine.py render --stores '[{"name":"店","nav":"https://ur
 
 ## 接入麦当劳 MCP
 
-见 [MCP_SETUP.md](./MCP_SETUP.md)。
+见 [MCP_INTEGRATION.md](./MCP_INTEGRATION.md)。
 
 ## 参赛提交
 
-见 [ENTRY.md](./ENTRY.md)。
+- 官方参赛声明（必交，模板不可改）：[CONTEST_DECLARATION.md](./CONTEST_DECLARATION.md)
+- 参赛信息、作品简介与原创性说明：[ENTRY.md](./ENTRY.md)
