@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>麦麦秘籍 · 抽签解签</title>
+<style>
+  :root{
+    --paper:#f4e8d0; --paper2:#efe0c4; --ink:#3a2a17; --gold:#b8860b;
+    --wood:#7a5230; --wood2:#5c3d22; --red:#a83232; --green:#3a7a3a;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{
+    font-family:"KaiTi","STKaiti","Songti SC",serif;
+    background:radial-gradient(circle at 30% 20%, #2a1d10, #140d06 70%) fixed;
+    color:var(--ink); min-height:100vh; padding:32px 12px;
+  }
+  .scroll{
+    max-width:860px; margin:0 auto;
+    background:linear-gradient(180deg,var(--paper),var(--paper2));
+    border-radius:6px;
+    box-shadow:0 18px 50px rgba(0,0,0,.6), inset 0 0 60px rgba(120,80,30,.15);
+    position:relative; padding:0 0 28px;
+  }
+  .rod{height:26px;background:linear-gradient(180deg,var(--wood),var(--wood2));
+       border-radius:13px; box-shadow:0 4px 10px rgba(0,0,0,.5); position:relative;}
+  .rod::before,.rod::after{content:"";position:absolute;top:-6px;width:34px;height:38px;
+       background:radial-gradient(circle at 50% 40%,#caa15a,#6e4a22);
+       border-radius:50%; box-shadow:0 3px 6px rgba(0,0,0,.5);}
+  .rod::before{left:-22px;} .rod::after{right:-22px;}
+  .title{text-align:center;padding:22px 16px 8px;}
+  .title h1{font-size:34px;letter-spacing:6px;color:var(--wood2);text-shadow:0 1px 0 #fff5;}
+  .title .sub{margin-top:6px;color:#8a6b3a;font-size:14px;letter-spacing:2px;}
+
+  /* ===== 签筒入口（最前） ===== */
+  .lottery{text-align:center;padding:18px 20px 8px;}
+  .tube{width:96px;height:150px;margin:6px auto 4px;position:relative;
+        background:linear-gradient(90deg,#8a5a2c,#caa15a 40%,#8a5a2c);
+        border-radius:14px 14px 16px 16px;box-shadow:0 8px 18px rgba(0,0,0,.45), inset 0 -10px 18px rgba(0,0,0,.3);
+        border:2px solid #6e4a22;overflow:visible;}
+  .tube .mouth{position:absolute;top:-10px;left:50%;transform:translateX(-50%);
+        width:104px;height:20px;background:linear-gradient(180deg,#e8c98a,#b98a44);
+        border-radius:50%;box-shadow:inset 0 3px 6px rgba(0,0,0,.4);}
+  .tube .slip{position:absolute;top:-6px;left:50%;transform:translateX(-50%) rotate(8deg);
+        width:14px;height:74px;background:linear-gradient(180deg,#f6e7c0,#d9b878);
+        border:1px solid #b8945a;border-radius:4px;color:#7a3b1a;font-size:13px;
+        display:flex;align-items:center;justify-content:center;writing-mode:vertical-rl;
+        letter-spacing:3px;box-shadow:0 2px 4px rgba(0,0,0,.3);opacity:0;transition:opacity .2s;}
+  .tube.shake{animation:shake .6s ease-in-out;}
+  .tube .slip.fly{animation:fly 1s ease-in forwards;}
+  @keyframes shake{0%,100%{transform:translateX(0) rotate(0)}20%{transform:translateX(-8px) rotate(-4deg)}40%{transform:translateX(8px) rotate(4deg)}60%{transform:translateX(-6px) rotate(-3deg)}80%{transform:translateX(6px) rotate(3deg)}}
+  @keyframes fly{0%{opacity:1;top:-6px;transform:translateX(-50%) rotate(8deg) scale(1)}40%{opacity:1;top:-90px;transform:translateX(-50%) rotate(380deg) scale(1.1)}100%{opacity:0;top:-130px;transform:translateX(-50%) rotate(720deg) scale(.9)}}
+  .lottery-tip{color:#8a6b3a;font-size:14px;letter-spacing:2px;margin:2px 0 8px;}
+  .prefs{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin:6px 0 10px;}
+  .pref{cursor:pointer;padding:4px 12px;border:1px solid var(--wood);border-radius:14px;
+        color:var(--wood2);background:#fff6e0;font-size:13px;user-select:none;transition:all .15s;}
+  .pref.on{background:var(--wood);color:#ffe9c0;border-color:var(--wood2);}
+  .draw-btn{cursor:pointer;padding:12px 34px;font-size:18px;letter-spacing:3px;
+        background:linear-gradient(180deg,#c0392b,#8e2719);color:#ffe9c0;border:none;border-radius:24px;
+        box-shadow:0 6px 14px rgba(142,39,25,.5), inset 0 1px 0 #fff3;font-family:inherit;}
+  .draw-btn:hover{transform:translateY(-1px);}
+  .draw-btn:disabled{opacity:.6;cursor:default;transform:none;}
+  .reveal{margin:14px auto 4px;max-width:520px;display:none;}
+  .reveal.show{display:block;animation:fadein .5s ease;}
+  .reveal-card{background:#fff8ea;border:1px solid #d8c39a;border-radius:10px;padding:16px;
+        box-shadow:0 4px 14px rgba(184,134,11,.3);text-align:left;}
+  .rc-title{font-size:22px;color:var(--wood2);text-align:center;letter-spacing:2px;}
+  .rc-sub{text-align:center;color:#7a5c30;font-size:14px;margin:6px 0;}
+  .rc-fitness{background:#fbf0d2;border-radius:8px;padding:8px 10px;color:#7a5230;font-size:13px;line-height:1.7;margin:8px 0;}
+  .rc-fitness b{color:var(--red);}
+  .rc-tags{margin:8px 0;}
+  .rc-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:10px;}
+  .rc-actions button{cursor:pointer;padding:9px 16px;border-radius:18px;font-size:14px;font-family:inherit;border:1px solid var(--wood);}
+  .confirm-btn{background:linear-gradient(180deg,#2e8b57,#1f6b41);color:#fff;border-color:#1f6b41;}
+  .again-btn{background:#fff6e0;color:var(--wood2);}
+  .keep-btn{background:#fff6e0;color:var(--wood2);}
+  .reveal-note{text-align:center;color:#a83232;font-size:13px;margin-top:8px;display:none;}
+  .scroll-body{display:none;}
+  .scroll-body.open{display:block;animation:fadein .6s ease;}
+
+  .tabs{display:flex;justify-content:center;gap:10px;margin:14px 0 6px;}
+  .tab{cursor:pointer;padding:8px 18px;border:1px solid var(--wood);
+       border-radius:18px;color:var(--wood2);background:#fff6e0;font-size:15px;}
+  .tab.active{background:var(--wood);color:#ffe9c0;}
+  .panel{display:none;padding:18px 26px 8px;}
+  .panel.active{display:block;}
+  .card{background:#fff8ea;border:1px solid #d8c39a;border-radius:8px;
+        padding:14px 16px;margin:10px 0;box-shadow:0 2px 6px rgba(120,80,30,.12);}
+  .card h3{color:var(--wood2);font-size:19px;margin-bottom:4px;}
+  .meta{color:#7a5c30;font-size:13px;line-height:1.7;}
+  .tag{display:inline-block;background:#f0dcae;color:#7a5230;border-radius:10px;
+       padding:1px 9px;font-size:12px;margin:2px 3px;}
+  .progress{height:14px;background:#e3d3ad;border-radius:8px;overflow:hidden;margin-top:8px;}
+  .progress>span{display:block;height:100%;background:linear-gradient(90deg,var(--gold),#e0a93a);}
+  .steps{display:flex;justify-content:space-between;font-size:12px;color:#7a5c30;margin-top:5px;}
+  .steps b{color:var(--green);}
+  .ach{display:flex;flex-wrap:wrap;gap:10px;margin-top:6px;justify-content:center;}
+  .badge{width:120px;border-radius:8px;padding:8px;text-align:center;transition:transform .18s;}
+  .badge.got{border:1px solid var(--gold);background:linear-gradient(180deg,#fff3cf,#ffe39a);
+         box-shadow:0 2px 8px rgba(184,134,11,.35);animation:lantern 3.2s ease-in-out infinite;}
+  @keyframes lantern{0%,100%{box-shadow:0 2px 8px rgba(184,134,11,.35);}50%{box-shadow:0 2px 18px rgba(184,134,11,.72);}}
+  .badge.got:hover{transform:translateY(-2px);}
+  .badge.locked{border:1px solid #cdc6ba;background:#e3dfd7;}
+  .badge.locked .bn{font-size:24px;color:#a9a49b;letter-spacing:4px;line-height:1.3;}
+  .badge.locked .bd{color:#b4afa6;font-style:italic;}
+  .badge.locked .lock{color:#c2bdB4;font-size:11px;}
+  .badge.locked:hover{border-color:#b3ab9c;}
+  .badge .bn{font-size:15px;color:var(--wood2);} .badge .bd{font-size:11px;color:#7a5c30;margin-top:3px;}
+  .badge .lock{font-size:11px;color:#a08a5a;margin-top:3px;}
+  .ach-hint{text-align:center;color:#8a6b3a;font-size:12px;margin-top:10px;font-style:italic;}
+  footer{text-align:center;color:#8a6b3a;font-size:12px;padding:14px;}
+  .empty{color:#a08a5a;text-align:center;padding:24px;font-style:italic;}
+  @keyframes fadein{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+  @media (prefers-reduced-motion: reduce){
+    .tube.shake,.tube .slip.fly{animation:none!important;}
+    .reveal.show,.scroll-body.open{animation:none!important;}
+    .badge.got{animation:none!important;}
+  }
+</style>
+</head>
+<body>
+<div class="scroll">
+  <div class="rod"></div>
+  <div class="title">
+    <h1>麦 麦 秘 籍</h1>
+    <div class="sub" id="gen"></div>
+  </div>
+
+  <!-- 签筒入口（最前）：先抽签解签，才开卷轴 -->
+  <div class="lottery">
+    <div class="tube" id="tube">
+      <div class="mouth"></div>
+      <div class="slip" id="slip">签</div>
+    </div>
+    <div class="lottery-tip">心诚则灵 · 先求一签，方见你的麦麦秘籍</div>
+    <div class="prefs" id="prefs">
+      <span class="pref" data-pref="beef">🥩 牛肉</span>
+      <span class="pref" data-pref="chicken">🍗 鸡肉</span>
+      <span class="pref" data-pref="not_spicy">🌿 不辣</span>
+      <span class="pref" data-pref="spicy">🌶️ 辣</span>
+    </div>
+    <button class="draw-btn" id="drawBtn">🎋 求签</button>
+    <div class="reveal" id="reveal"></div>
+    <div class="reveal-note" id="revealNote"></div>
+  </div>
+
+  <!-- 卷轴主体（抽签后才展开） -->
+  <div class="scroll-body" id="scrollBody">
+    <div class="tabs">
+      <div class="tab active" data-t="s1">秘籍卷</div>
+      <div class="tab" data-t="s2">门店卷</div>
+      <div class="tab" data-t="s3">订单卷</div>
+      <div class="tab" data-t="s4">成就墙</div>
+    </div>
+    <div class="panel active" id="s1"></div>
+    <div class="panel" id="s2"></div>
+    <div class="panel" id="s3"></div>
+    <div class="panel" id="s4"></div>
+    <div class="rod"></div>
+    <footer>麦麦秘籍 · 由 WorkBuddy 与麦当劳 MCP 共书</footer>
+  </div>
+</div>
+
+<script>
+const DATA = __DATA__;
+document.getElementById("gen").textContent = "生成于 " + (DATA.generated||"");
+
+/* ===== 签筒离线抽签：自带菜单池，任何人加载即可抽（通用性） ===== */
+const MENU = DATA.menu || [];
+const CATEGORY_NAMES = {burger:"单堡", combo:"套餐", burger_plus_side:"堡+小食"};
+const TDEE = 2250.0;
+const EXERCISES = [
+  {key:"walk",name:"散步",verb:"溜达",emoji:"🚶",kcal_per_min:5.3},
+  {key:"run",name:"跑步",verb:"跑",emoji:"🏃",kcal_per_min:9.6},
+  {key:"badminton",name:"羽毛球",verb:"打羽毛球",emoji:"🏸",kcal_per_min:6.4},
+  {key:"pingpong",name:"乒乓球",verb:"打乒乓球",emoji:"🏓",kcal_per_min:4.9},
+  {key:"swim",name:"游泳",verb:"游",emoji:"🏊",kcal_per_min:7.4},
+  {key:"bike",name:"骑自行车",verb:"骑",emoji:"🚴",kcal_per_min:4.7},
+  {key:"rope",name:"跳绳",verb:"跳",emoji:"🤾",kcal_per_min:9.8},
+  {key:"yoga",name:"瑜伽",verb:"练",emoji:"🧘",kcal_per_min:3.5}
+];
+function calcFitness(kcal){
+  if(!kcal) return null;
+  const details = EXERCISES.map(e=>({...e, minutes:Math.max(1, Math.round(kcal/e.kcal_per_min))}));
+  // 与引擎一致：随机推荐一种运动作为「额外抵消」示例
+  const rec = details[Math.floor(Math.random()*details.length)];
+  return {kcal, daily_pct:Math.round(kcal/TDEE*100),
+          rest_hours:Math.round(kcal/(TDEE/24)*10)/10, recommended:rec, details};
+}
+let selectedPrefs = new Set();
+const slipEl = document.getElementById("slip");
+const tubeEl = document.getElementById("tube");
+const drawBtn = document.getElementById("drawBtn");
+const revealEl = document.getElementById("reveal");
+const noteEl = document.getElementById("revealNote");
+let currentMeal = null;
+
+document.querySelectorAll('#prefs .pref').forEach(p=>{
+  p.onclick=()=>{
+    const v=p.dataset.pref;
+    if(selectedPrefs.has(v)){selectedPrefs.delete(v);p.classList.remove('on');}
+    else{selectedPrefs.add(v);p.classList.add('on');}
+  };
+});
+
+function drawLot(){
+  let pool = MENU.slice();
+  if(selectedPrefs.size){
+    const filtered = pool.filter(it=>(it.tags||[]).some(t=>selectedPrefs.has(t)));
+    if(filtered.length) pool = filtered;
+  }
+  if(!pool.length){
+    revealEl.className='reveal show';
+    revealEl.innerHTML='<div class="reveal-card"><div class="rc-title">签筒空空</div>'
+      +'<div class="rc-sub">当前没有符合口味的餐品，换换偏好再求一签。</div></div>';
+    return;
+  }
+  const pick = pool[Math.floor(Math.random()*pool.length)];
+  const fit = calcFitness(pick.kcal);
+  currentMeal = pick;
+
+  const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(reduce){
+    showReveal(pick, fit);
+    return;
+  }
+  drawBtn.disabled=true;
+  slipEl.style.opacity=1;
+  tubeEl.classList.add('shake');
+  setTimeout(()=>{
+    tubeEl.classList.remove('shake');
+    slipEl.classList.add('fly');
+    setTimeout(()=>{
+      slipEl.classList.remove('fly');
+      slipEl.style.opacity=0;
+      drawBtn.disabled=false;
+      showReveal(pick, fit);
+    }, 1000);
+  }, 600);
+}
+
+function showReveal(pick, fit){
+  const catName = CATEGORY_NAMES[pick.category]||pick.category;
+  const tags = (pick.tags||[]).map(t=>'<span class="tag">'+t+'</span>').join('');
+  let fitnessHtml='';
+  if(fit){
+    fitnessHtml = '<div class="rc-fitness">'+fit.recommended.emoji+' 这顿占每日消耗 <b>'+fit.daily_pct
+      +'%</b>，相当于自然消耗约 <b>'+fit.rest_hours+' 小时</b>；想额外抵消，'+fit.recommended.verb
+      +'约 <b>'+fit.recommended.minutes+' 分钟</b> 即平衡。<br>'
+      + fit.details.map(d=>d.emoji+d.name+' '+d.minutes+'分').join(' ｜ ')+'</div>';
+  }
+  revealEl.className='reveal show';
+  revealEl.innerHTML =
+    '<div class="reveal-card">'
+    + '<div class="rc-title">📜 签文 · '+pick.name+'</div>'
+    + '<div class="rc-sub">'+catName+' ｜ 到手价 ¥'+(pick.price??'—')+' ｜ '+(pick.kcal??'—')+' kcal</div>'
+    + fitnessHtml
+    + '<div class="rc-tags">'+tags+'</div>'
+    + '<div class="rc-actions">'
+    +   '<button class="confirm-btn" id="confirmBtn">✅ 确认此套餐，回 WorkBuddy 下单</button>'
+    +   '<button class="again-btn" id="againBtn">🔁 再抽一次</button>'
+    +   '<button class="keep-btn" id="interpretBtn">📜 解签 · 展开麦麦秘籍</button>'
+    + '</div></div>';
+  document.getElementById('confirmBtn').onclick=()=>confirmMeal(pick);
+  document.getElementById('againBtn').onclick=drawLot;
+  document.getElementById('interpretBtn').onclick=()=>{ openScroll(); revealEl.classList.remove('show'); noteEl.style.display='none'; };
+}
+
+/* 确认套餐 → 信息回到 WorkBuddy（postMessage + 剪贴板降级） */
+function confirmMeal(meal){
+  const payload = {source:"mcd-scroll", type:"confirm_meal",
+    meal:{name:meal.name, category:meal.category, price:meal.price, kcal:meal.kcal, tags:meal.tags||[]}};
+  try{ if(window.parent && window.parent!==window) window.parent.postMessage(payload, "*"); }catch(e){}
+  const text = "麦麦秘籍·确认下单：" + meal.name + "（¥" + (meal.price??'?') + "，" + (meal.kcal??'?') + "kcal）。请帮我走麦当劳点单并弹支付确认。";
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(showSent, showSent);
+  } else { showSent(); }
+}
+function showSent(){
+  noteEl.style.display='block';
+  noteEl.textContent='✅ 套餐已就绪：信息已复制，请回到 WorkBuddy 粘贴并确认下单（或直接说"确认刚才抽到的套餐"）。';
+  openScroll();
+}
+
+/* 抽签后点「解签」才展开卷轴（首页只放签筒） */
+function openScroll(){
+  document.getElementById('scrollBody').classList.add('open');
+}
+
+drawBtn.onclick=drawLot;
+
+/* ===== 以下为卷轴四卷渲染（门店/订单/坐标换算与原有逻辑一致） ===== */
+const ORDER_STEPS = ["已下单","已接单","制作中","配送中","已送达"];
+function wgs84ToGcj02(lat, lng){
+  var pi = 3.14159265358979324, a = 6378245.0, ee = 0.00669342162296594323;
+  function outOfChina(la, lo){ return !(lo > 72.004 && lo < 137.8347 && la > 0.8293 && la < 55.8271); }
+  function tLat(x, y){
+    var r = -100.0 + 2.0*x + 3.0*y + 0.2*y*y + 0.1*x*y + 0.2*Math.sqrt(Math.abs(x));
+    r += (20.0*Math.sin(6.0*x*pi) + 20.0*Math.sin(2.0*x*pi)) * 2.0/3.0;
+    r += (20.0*Math.sin(y*pi) + 40.0*Math.sin(y/3.0*pi)) * 2.0/3.0;
+    r += (160.0*Math.sin(y/12.0*pi) + 320*Math.sin(y*pi/30.0)) * 2.0/3.0;
+    return r;
+  }
+  function tLng(x, y){
+    var r = 300.0 + x + 2.0*y + 0.1*x*x + 0.1*x*y + 0.1*Math.sqrt(Math.abs(x));
+    r += (20.0*Math.sin(6.0*x*pi) + 20.0*Math.sin(2.0*x*pi)) * 2.0/3.0;
+    r += (20.0*Math.sin(x*pi) + 40.0*Math.sin(x/3.0*pi)) * 2.0/3.0;
+    r += (150.0*Math.sin(x/12.0*pi) + 300.0*Math.sin(x/30.0*pi)) * 2.0/3.0;
+    return r;
+  }
+  if(outOfChina(lat, lng)) return [lat, lng];
+  var dLat = tLat(lng-105.0, lat-35.0), dLng = tLng(lng-105.0, lat-35.0);
+  var radLat = lat/180.0*pi, magic = Math.sin(radLat);
+  magic = 1 - ee*magic*magic;
+  var sq = Math.sqrt(magic);
+  dLat = (dLat*180.0)/((a*(1-ee))/(magic*sq)*pi);
+  dLng = (dLng*180.0)/(a/sq*Math.cos(radLat)*pi);
+  return [lat+dLat, lng+dLng];
+}
+function routeFromHere(lat, lng, name, fallbackNav, mode){
+  var goMap = function(){ if(fallbackNav) window.open(fallbackNav, "_blank"); };
+  if(!navigator.geolocation){
+    alert("当前环境不支持定位，改为打开地图由你手动指定起点。"); return goMap();
+  }
+  navigator.geolocation.getCurrentPosition(function(pos){
+    var g = wgs84ToGcj02(pos.coords.latitude, pos.coords.longitude);
+    var url = "https://api.map.baidu.com/direction?origin=" + g[0].toFixed(6) + "," + g[1].toFixed(6)
+      + "|" + encodeURIComponent("我的位置") + "&destination=" + lat + "," + lng + "|" + encodeURIComponent(name)
+      + "&mode=" + (mode || "walking") + "&output=html&coord_type=gcj02";
+    window.open(url, "_blank");
+  }, function(err){
+    alert("定位失败或未授权，改为打开地图由你手动指定起点。"); goMap();
+  }, {enableHighAccuracy:true, timeout:8000, maximumAge:60000});
+}
+function orderBar(status){
+  let idx = ORDER_STEPS.indexOf(status); if(idx<0) idx=0;
+  let pct = Math.round((idx+1)/ORDER_STEPS.length*100);
+  let steps = ORDER_STEPS.map((s,i)=> i<=idx?'<b>'+s+'</b>':s).join(' · ');
+  return '<div class="progress"><span style="width:'+pct+'%"></span></div><div class="steps">'+steps+'</div>';
+}
+
+// 秘籍卷
+const s1 = document.getElementById("s1");
+if(DATA.secrets && DATA.secrets.length){
+  s1.innerHTML = DATA.secrets.map(s=>`
+    <div class="card">
+      <h3>${s.id} · ${s.name}</h3>
+      <div class="meta">类别：${s.category} ｜ 热量：${s.kcal??'—'} kcal ｜ 到手价：¥${s.price??'—'}<br>
+        门店：${s.store||'—'} ｜ 订单：${s.order||'—'} ｜ 收藏：${s.time}</div>
+      ${s.fitness?('<div class="meta">'+s.fitness.recommended.emoji+' 占每日消耗 <b>'+s.fitness.daily_pct+'%</b>，额外'+s.fitness.recommended.verb+'约 <b>'+s.fitness.recommended.minutes+' 分钟</b>即平衡。</div>'):''}
+      <div>${s.paid?'<span class="tag">已支付</span>':'<span class="tag">待支付</span>'}</div>
+    </div>`).join('');
+}else{
+  s1.innerHTML = '<div class="empty">尚无秘籍。先在上方签筒求签，点「解签」展开此卷。</div>';
+}
+// 门店卷
+const s2 = document.getElementById("s2");
+if(DATA.stores && DATA.stores.length){
+  s2.innerHTML = DATA.stores.map(st=>`
+    <div class="card"><h3>${st.name}</h3><div class="meta">
+      ${st.address||''} ｜ 距您 ${st.distance??'—'}${st.rating?(' ｜ 评分 <b>'+st.rating+'</b>'):''}
+      ${st.lng?('<br>坐标：'+st.lat+', '+st.lng+' <span class="tag">百度地图</span>'):''}
+      ${st.hours?('<br>营业：'+st.hours+(st.open===false?' <span class="tag" style="background:#e6cfcf;color:#a83232">已打烊</span>':' <span class="tag" style="background:#cfe0cf;color:#3a7a3a">营业中</span>')):''}
+      </div><div>${st.nav?'<a class="tag" href="'+st.nav+'" target="_blank">到店导航</a>':''}${st.route?'<a class="tag" href="'+st.route+'" target="_blank">路线规划</a>':''}${st.lng?'<a class="tag btn-here" href="javascript:void(0)" data-lat="'+st.lat+'" data-lng="'+st.lng+'" data-name="'+st.name+'" data-nav="'+(st.nav||'')+'">从这里出发</a>':''}</div></div>`).join('');
+}else{
+  s2.innerHTML = '<div class="empty">暂无附近门店。连接麦当劳 MCP 后自动补全。</div>';
+}
+// 订单卷
+const s3 = document.getElementById("s3");
+if(DATA.orders && DATA.orders.length){
+  s3.innerHTML = DATA.orders.map(o=>`
+    <div class="card"><h3>订单 ${o.no}</h3><div class="meta">${o.items||''}</div>${orderBar(o.status)}</div>`).join('');
+}else{
+  s3.innerHTML = '<div class="empty">暂无订单进度。</div>';
+}
+// 成就墙（隐藏式：未点亮者隐去真名，只留问号，触发后方见）
+const s4 = document.getElementById("s4");
+const ACH = DATA.achievements || [];
+const GOT = ACH.filter(a => a.got).length;
+s4.innerHTML =
+  '<div class="meta" style="text-align:center;margin-bottom:8px">江湖累计收录 <b>'+DATA.secrets.length+'</b> 卷 · 摄入 <b style="color:#a83232">'+((DATA.total_kcal)||0)+' kcal</b>'
+  + '<br>秘籍暗格：<b style="color:#b8860b;font-size:15px">'+GOT+'</b> / '+ACH.length+' 已点亮</div>'
+  + '<div class="ach">' + ACH.map(a => `
+  <div class="badge ${a.got ? 'got' : 'locked'}">
+    ${a.got ? '<div class="bn">'+a.name+'</div><div class="bd">'+a.desc+'</div><div class="lock">已点亮</div>'
+            : '<div class="bn">？ ？ ？</div><div class="bd">未解之谜</div><div class="lock">未点亮</div>'}
+  </div>`).join('') + '</div>'
+  + '<div class="ach-hint">灰暗之处皆未解之谜 —— 待君亲身触发，方见真名。</div>';
+
+// tab 切换
+document.querySelectorAll('.tab').forEach(t=>{
+  t.onclick=()=>{
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));
+    t.classList.add('active');
+    document.getElementById(t.dataset.t).classList.add('active');
+  };
+});
+// 「从这里出发」事件委托
+document.addEventListener('click', function(e){
+  var b = e.target && e.target.closest ? e.target.closest('.btn-here') : null;
+  if(!b) return; e.preventDefault();
+  var old = b.textContent; b.textContent='定位中…';
+  routeFromHere(b.dataset.lat, b.dataset.lng, b.dataset.name, b.dataset.nav, 'walking');
+  setTimeout(function(){ b.textContent = old || '从这里出发'; }, 1500);
+});
+</script>
+</body>
+</html>

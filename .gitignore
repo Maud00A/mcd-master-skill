@@ -1,0 +1,11 @@
+# 真实存档（含门店/订单等可识别信息，仅本地使用，禁止进公开仓库）
+data/secrets.json
+# 由真实存档渲染出的卷轴（含真实门店/订单），同样不进库
+data/scroll.html
+# 百度地图解析出的真实门店坐标（真实位置），不进库
+data/stores_geo.json
+# 真实门店输入（含真实门店名/地址，仅本地喂百度地图用），不进库
+data/stores_input.json
+# 本地运行产物
+__pycache__/
+*.pyc

@@ -1,0 +1,15 @@
+{
+  "storeCode": "1450555",
+  "beCode": "145055502",
+  "note": "示例菜单，仅用于无 Token 时本地抽签兜底。接入麦当劳 MCP 后用 query-meals 实时拉取。",
+  "items": [
+    {"id":"b1","name":"巨无霸","category":"burger","price":24.0,"tags":["beef","classic"],"kcal":563},
+    {"id":"b2","name":"板烧鸡腿堡","category":"burger","price":21.0,"tags":["chicken","not_spicy"],"kcal":502},
+    {"id":"b3","name":"辣翅堡","category":"burger","price":20.0,"tags":["chicken","spicy"],"kcal":540},
+    {"id":"c1","name":"巨无霸套餐","category":"combo","price":42.0,"tags":["beef","combo"],"kcal":850},
+    {"id":"c2","name":"麦辣鸡腿堡套餐","category":"combo","price":38.0,"tags":["chicken","spicy","combo"],"kcal":820},
+    {"id":"c3","name":"板烧鸡腿堡套餐","category":"combo","price":40.0,"tags":["chicken","not_spicy","combo"],"kcal":800},
+    {"id":"p1","name":"巨无霸+薯条+可乐","category":"burger_plus_side","price":36.0,"tags":["beef","combo"],"kcal":780},
+    {"id":"p2","name":"板烧鸡腿堡+玉米+红茶","category":"burger_plus_side","price":34.0,"tags":["chicken","not_spicy"],"kcal":700}
+  ]
+}
