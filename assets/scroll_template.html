@@ -4,19 +4,26 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>麦麦秘籍 · 抽签解签</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=ZCOOL+XiaoWei&display=swap" rel="stylesheet">
 <style>
   :root{
     --paper:#f6ecd6; --paper2:#ecdcbd; --ink:#3a2a17; --gold:#b8860b; --gold2:#d9a93a;
     --wood:#7a5230; --wood2:#5c3d22; --red:#a83232; --green:#3a7a3a; --line:#d8c39a;
+    --calli:"Ma Shan Zheng","STKaiti","KaiTi",cursive;
+    --song:"ZCOOL XiaoWei","Noto Serif SC","Songti SC","KaiTi",serif;
+    --bg1:#241809; --bg2:#120b04; --glow1:#3a2814; --glow2:#2a1c0e;
   }
   *{box-sizing:border-box;margin:0;padding:0;}
   body{
-    font-family:"KaiTi","STKaiti","Songti SC","Noto Serif SC",serif;
+    font-family:var(--song);
     background:
-      radial-gradient(1200px 620px at 50% -8%, #3a2814, transparent 60%),
-      radial-gradient(900px 520px at 82% 116%, #2a1c0e, transparent 55%),
-      linear-gradient(160deg,#241809,#120b04 72%) fixed;
+      radial-gradient(1200px 620px at 50% -8%, var(--glow1), transparent 60%),
+      radial-gradient(900px 520px at 82% 116%, var(--glow2), transparent 55%),
+      linear-gradient(160deg,var(--bg1),var(--bg2) 72%) fixed;
     color:var(--ink); min-height:100vh; padding:34px 12px;
+    transition:background .8s ease;
   }
   .scroll{
     max-width:880px; margin:0 auto; position:relative; padding:0 0 26px;
@@ -35,7 +42,7 @@
        border-radius:50%; box-shadow:0 4px 8px rgba(0,0,0,.5);}
   .rod::before{left:-20px;} .rod::after{right:-20px;}
   .title{text-align:center;padding:28px 16px 10px;position:relative;}
-  .title h1{font-size:38px;letter-spacing:10px;color:var(--wood2);
+  .title h1{font-size:38px;letter-spacing:10px;color:var(--wood2);font-family:var(--calli);
        text-shadow:0 2px 0 rgba(255,255,255,.35), 0 0 20px rgba(184,134,11,.28);}
   .title .sub{margin-top:8px;color:#9a7b48;font-size:14px;letter-spacing:3px;}
   /* 印章 */
@@ -101,7 +108,7 @@
   .keep-btn{background:#fff6e0;color:var(--wood2);}
   .reveal-note{text-align:center;color:#a83232;font-size:13px;margin-top:8px;display:none;}
   .scroll-body{display:none;}
-  .scroll-body.open{display:block;animation:fadein .6s ease;}
+  .scroll-body.open{display:block;animation:unfold .9s cubic-bezier(.2,.7,.2,1) both;}
 
   .tabs{display:flex;justify-content:center;gap:10px;margin:16px 0 8px;flex-wrap:wrap;}
   .tab{cursor:pointer;padding:8px 18px;border:1px solid var(--wood);
@@ -143,6 +150,22 @@
   footer{text-align:center;color:#8a6b3a;font-size:12px;padding:14px;}
   .empty{color:#a08a5a;text-align:center;padding:24px;font-style:italic;}
   @keyframes fadein{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+  @keyframes unfold{from{opacity:0;clip-path:inset(0 48% 0 48%);transform:translateY(6px);}to{opacity:1;clip-path:inset(0 0 0 0);transform:none;}}
+  /* 时辰氛围：按真实时辰切换背景色温（夜阑偏蓝 / 破晓偏金 / 当午偏暖 / 向晚偏橙） */
+  body.phase-dawn{--bg1:#3a2a12;--bg2:#1a1206;--glow1:#5a3a16;--glow2:#3a2410;}
+  body.phase-day{--bg1:#2e2810;--bg2:#15120a;--glow1:#4a3a16;--glow2:#2a2410;}
+  body.phase-dusk{--bg1:#3a1e10;--bg2:#1a0e06;--glow1:#5a2a14;--glow2:#3a1a0c;}
+  body.phase-night{--bg1:#0e1530;--bg2:#070a16;--glow1:#1a244a;--glow2:#10182f;}
+
+  /* 成就墙江湖评语气泡（hover 浮现） */
+  .badge .tip{position:absolute;left:50%;bottom:calc(100% + 8px);transform:translateX(-50%) translateY(4px);
+        background:#2a1c0e;color:#ffe9c0;font-size:11px;line-height:1.6;padding:7px 10px;border-radius:7px;
+        width:max-content;max-width:180px;white-space:normal;text-align:center;opacity:0;pointer-events:none;
+        transition:opacity .2s, transform .2s;box-shadow:0 6px 16px rgba(0,0,0,.55);z-index:6;}
+  .badge .tip::after{content:"";position:absolute;top:100%;left:50%;transform:translateX(-50%);
+        border:6px solid transparent;border-top-color:#2a1c0e;}
+  .badge:hover .tip{opacity:1;transform:translateX(-50%) translateY(0);}
+
   @media (prefers-reduced-motion: reduce){
     .tube.shake,.tube .slip.fly{animation:none!important;}
     .reveal.show,.scroll-body.open,.panel{animation:none!important;}
@@ -164,13 +187,13 @@
   <div class="rod"></div>
   <div class="title">
     <h1>麦 麦 秘 籍</h1>
-    <div class="seal">麦麦<br>秘籍</div>
+    <div class="seal" aria-hidden="true">麦麦<br>秘籍</div>
     <div class="sub" id="gen"></div>
   </div>
 
   <!-- 签筒入口（最前）：先抽签解签，才开卷轴 -->
   <div class="lottery">
-    <div class="tube" id="tube">
+    <div class="tube" id="tube" role="img" aria-label="签筒，抽签入口">
       <div class="mouth"></div>
       <div class="slip" id="slip">签</div>
     </div>
@@ -181,23 +204,23 @@
       <span class="pref" data-pref="not_spicy">🌿 不辣</span>
       <span class="pref" data-pref="spicy">🌶️ 辣</span>
     </div>
-    <button class="draw-btn" id="drawBtn">🎋 求签</button>
+    <button class="draw-btn" id="drawBtn" aria-label="求签：随机抽取一份麦当劳套餐签文">🎋 求签</button>
     <div class="reveal" id="reveal"></div>
     <div class="reveal-note" id="revealNote"></div>
   </div>
 
   <!-- 卷轴主体（抽签后才展开） -->
   <div class="scroll-body" id="scrollBody">
-    <div class="tabs">
-      <div class="tab active" data-t="s1">秘籍卷</div>
-      <div class="tab" data-t="s2">门店卷</div>
-      <div class="tab" data-t="s3">订单卷</div>
-      <div class="tab" data-t="s4">成就墙</div>
+    <div class="tabs" role="tablist" aria-label="麦麦秘籍四卷">
+      <div class="tab active" id="tab-s1" role="tab" aria-selected="true" aria-controls="s1" tabindex="0" data-t="s1">秘籍卷</div>
+      <div class="tab" id="tab-s2" role="tab" aria-selected="false" aria-controls="s2" tabindex="-1" data-t="s2">门店卷</div>
+      <div class="tab" id="tab-s3" role="tab" aria-selected="false" aria-controls="s3" tabindex="-1" data-t="s3">订单卷</div>
+      <div class="tab" id="tab-s4" role="tab" aria-selected="false" aria-controls="s4" tabindex="-1" data-t="s4">成就墙</div>
     </div>
-    <div class="panel active" id="s1"></div>
-    <div class="panel" id="s2"></div>
-    <div class="panel" id="s3"></div>
-    <div class="panel" id="s4"></div>
+    <div class="panel active" id="s1" role="tabpanel" aria-labelledby="tab-s1"></div>
+    <div class="panel" id="s2" role="tabpanel" aria-labelledby="tab-s2"></div>
+    <div class="panel" id="s3" role="tabpanel" aria-labelledby="tab-s3"></div>
+    <div class="panel" id="s4" role="tabpanel" aria-labelledby="tab-s4"></div>
     <div class="rod"></div>
     <footer>麦麦秘籍 · 由 WorkBuddy 与麦当劳 MCP 共书</footer>
   </div>
@@ -205,7 +228,17 @@
 
 <script>
 const DATA = __DATA__;
-document.getElementById("gen").textContent = "生成于 " + (DATA.generated||"");
+// 时辰与氛围：按真实时辰切换背景色温，并在副标题标注此刻时辰
+(function(){
+  const h = new Date().getHours();
+  const phase = (h >= 21 || h < 5) ? 'night' : (h < 9 ? 'dawn' : (h < 15 ? 'day' : 'dusk'));
+  document.body.classList.add('phase-' + phase);
+  const SHICHEN = ['子时','丑时','寅时','卯时','辰时','巳时','午时','未时','申时','酉时','戌时','亥时'];
+  const sc = SHICHEN[Math.floor(((h + 1) % 24) / 2)];
+  const phaseName = {night:'夜阑',dawn:'破晓',day:'当午',dusk:'向晚'}[phase];
+  const gen = document.getElementById('gen');
+  if(gen) gen.textContent = '生成于 ' + (DATA.generated || '') + ' ｜ 此刻 ' + sc + '（' + phaseName + '）';
+})();
 
 /* ===== 签筒离线抽签：自带菜单池，任何人加载即可抽（通用性） ===== */
 const MENU = DATA.menu || [];
@@ -415,27 +448,55 @@ if(DATA.orders && DATA.orders.length){
   s3.innerHTML = '<div class="empty">暂无订单进度。</div>';
 }
 // 成就墙（隐藏式：未点亮者隐去真名，只留问号，触发后方见）
+const ACH_TIPS = {
+  "初入江湖":"江湖路远，此签为始。",
+  "十全十美":"十卷秘籍在握，圆满无缺。",
+  "三门精通":"堡、餐、小食皆尝，门门通透。",
+  "套餐行家":"三件套信手拈来，省心又实惠。",
+  "早起的人儿有汉堡吃":"晨光未亮，已得一口热乎。",
+  "凌晨独醒":"万籁俱寂，唯有麦香相伴。",
+  "一日不可无麦":"一日不食，便觉少了什么。",
+  "巨无霸主义者":"两片面包之间，是大千世界。",
+  "夜宵大王":"夜深人静，正是宵夜时。",
+  "正午食客":"日正当中，饱餐一顿。",
+  "签筒老主顾":"签筒熟客，心诚则灵。",
+  "连续打卡":"日日相见，未敢懈怠。"
+};
 const s4 = document.getElementById("s4");
 const ACH = DATA.achievements || [];
 const GOT = ACH.filter(a => a.got).length;
 s4.innerHTML =
   '<div class="meta" style="text-align:center;margin-bottom:8px">江湖累计收录 <b>'+DATA.secrets.length+'</b> 卷 · 摄入 <b style="color:#a83232">'+((DATA.total_kcal)||0)+' kcal</b>'
   + '<br>秘籍暗格：<b style="color:#b8860b;font-size:15px">'+GOT+'</b> / '+ACH.length+' 已点亮</div>'
-  + '<div class="ach">' + ACH.map(a => `
+  + '<div class="ach">' + ACH.map(a => {
+      const tip = a.got ? (ACH_TIPS[a.name] || a.desc || '亲身触发，方见真名。') : '未解之谜 —— 待君亲身触发，方见真名。';
+      return `
   <div class="badge ${a.got ? 'got' : 'locked'}">
     ${a.got ? '<div class="bn">'+a.name+'</div><div class="bd">'+a.desc+'</div><div class="lock">已点亮</div>'
             : '<div class="bn">？ ？ ？</div><div class="bd">未解之谜</div><div class="lock">未点亮</div>'}
-  </div>`).join('') + '</div>'
+    <span class="tip">${tip}</span>
+  </div>`;
+    }).join('') + '</div>'
   + '<div class="ach-hint">灰暗之处皆未解之谜 —— 待君亲身触发，方见真名。</div>';
 
-// tab 切换
-document.querySelectorAll('.tab').forEach(t=>{
-  t.onclick=()=>{
-    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
-    document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));
-    t.classList.add('active');
-    document.getElementById(t.dataset.t).classList.add('active');
-  };
+// tab 切换（支持鼠标点击 + 键盘左右/上下/Home/End 导航，WAI-ARIA 规范）
+const tabs = Array.from(document.querySelectorAll('.tab'));
+function activateTab(t){
+  tabs.forEach(x=>{ x.classList.remove('active'); x.setAttribute('aria-selected','false'); x.tabIndex=-1; });
+  document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));
+  t.classList.add('active'); t.setAttribute('aria-selected','true'); t.tabIndex=0;
+  document.getElementById(t.dataset.t).classList.add('active');
+}
+tabs.forEach((t,i)=>{
+  t.onclick=()=>activateTab(t);
+  t.addEventListener('keydown', e=>{
+    let n=null;
+    if(e.key==='ArrowRight'||e.key==='ArrowDown') n=tabs[(i+1)%tabs.length];
+    else if(e.key==='ArrowLeft'||e.key==='ArrowUp') n=tabs[(i-1+tabs.length)%tabs.length];
+    else if(e.key==='Home') n=tabs[0];
+    else if(e.key==='End') n=tabs[tabs.length-1];
+    if(n){ e.preventDefault(); n.focus(); activateTab(n); }
+  });
 });
 // 「从这里出发」事件委托
 document.addEventListener('click', function(e){
